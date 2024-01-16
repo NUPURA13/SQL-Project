@@ -1,0 +1,221 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema greenspot
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema greenspot
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `greenspot` DEFAULT CHARACTER SET utf8 ;
+USE `greenspot` ;
+
+-- -----------------------------------------------------
+-- Table `greenspot`.`product`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `greenspot`.`product` (
+  `item_num` INT(11) NOT NULL,
+  `desc` VARCHAR(200) NOT NULL,
+  `vendor` VARCHAR(200) NOT NULL,
+  `item_type` VARCHAR(45) NOT NULL,
+  `location` VARCHAR(45) NOT NULL,
+  `unit` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`item_num`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `greenspot`.`customer`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `greenspot`.`customer` (
+  `cust_id` INT(11) NOT NULL,
+  `cust_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`cust_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `greenspot`.`purchase`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `greenspot`.`purchase` (
+  `purchase_num` VARCHAR(30) NOT NULL,
+  `item_numP` INT(11) NOT NULL,
+  `cost` DECIMAL(8,2) NOT NULL,
+  `pur_date` DATE NOT NULL,
+  `qnty` INT(11) NOT NULL,
+  PRIMARY KEY (`purchase_num`),
+  INDEX `fk_purchase_product1_idx` (`item_numP` ASC) VISIBLE,
+  CONSTRAINT `fk_purchase_product1`
+    FOREIGN KEY (`item_numP`)
+    REFERENCES `greenspot`.`product` (`item_num`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `greenspot`.`sales`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `greenspot`.`sales` (
+  `sales_num` VARCHAR(45) NOT NULL,
+  `date_sold` DATE NOT NULL,
+  `cust_id` INT(11) NULL,
+  PRIMARY KEY (`sales_num`),
+  INDEX `fk_sales_customer1_idx` (`cust_id` ASC) VISIBLE,
+  CONSTRAINT `fk_sales_customer1`
+    FOREIGN KEY (`cust_id`)
+    REFERENCES `greenspot`.`customer` (`cust_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `greenspot`.`sales_details`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `greenspot`.`sales_details` (
+  `sales_num` VARCHAR(45) NOT NULL,
+  ` itemNumSales` INT(11) NOT NULL,
+  `price` DECIMAL(8,2) NOT NULL,
+  `qnty` INT(11) NOT NULL,
+  PRIMARY KEY (`sales_num`, ` itemNumSales`),
+  INDEX `fk_sales_details_product1_idx` (` itemNumSales` ASC) VISIBLE,
+  CONSTRAINT `fk_sales_details_product1`
+    FOREIGN KEY (` itemNumSales`)
+    REFERENCES `greenspot`.`product` (`item_num`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_sales_details_sales1`
+    FOREIGN KEY (`sales_num`)
+    REFERENCES `greenspot`.`sales` (`sales_num`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `greenspot`.`stock`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `greenspot`.`stock` (
+  `stockid` INT(11) NOT NULL,
+  `item_num` INT(11) NOT NULL,
+  `qnty` INT(11) NOT NULL,
+  `date` DATE NOT NULL,
+  PRIMARY KEY (`stockid`),
+  INDEX `fk_stock_product1_idx` (`item_num` ASC) VISIBLE,
+  CONSTRAINT `fk_stock_product1`
+    FOREIGN KEY (`item_num`)
+    REFERENCES `greenspot`.`product` (`item_num`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+SELECT * FROM greenspot.customer
+order by cust_name ;
+
+insert into greenspot .customer (cust_id , cust_name) values ('198765' , 'A') , ( '202900' , 'B') , ( '196777' , 'C') , ('277177' , 'D') , ('111000' , 'E') , ('100988' , 'F' ) ;
+
+insert into greenspot . product  values ( '1000' , 'Bennet Farm free-range eggs','Bennet Farms, Rt. 17 Evansville, IL 55446' , 'dairy' , 'D12' , 'dozen') ;
+
+insert into greenspot . product  values ( '1100' , 'Freshness White Beans','Freshness, Inc., 202 E. Maple St., St. Joseph, MO 45678' ,	'Canned' ,	'a2', '12 oz can') ;
+
+insert into greenspot . product  values ( '1222' ,	'Freshness Green beans'	,'Freshness, Inc. 202 E. Maple St., St. Joseph, MO 45678','Canned','a3','12 ounce can') ;
+
+insert into greenspot . product  values ( '1223' ,	'Freshness Green beans'	,'Freshness, Inc. 202 E. Maple St., St. Joseph, MO 45678','Canned','a7','36 oz can') ;
+
+insert into greenspot . product  values ( '1224' ,	'Freshness Wax beans','Freshness, Inc., 202 E. Maple St., St. Joseph, MO 45678','Canned','a3','12 ounce can') ;
+
+insert into greenspot . product  values ( '2000','Rubys Kale','Ruby Redd Produce, LLC, 1212 Milam St., Kenosha, AL, 34567','Produce', 'p12','bunch') ;
+
+insert into greenspot . product  values ( '2001','Rubys Organic Kale', 'Ruby Redd Produce, LLC, 1212 Milam St., Kenosha, AL, 34567','Produce','po2'	,'bunch') ;
+
+select * from greenspot.product ;
+
+insert into greenspot.purchase values ('P1','1000','2.35','2022-02-01','25') ,
+('P2','1100','0.69','2022-02-02','40') ,
+('P3', '1222','0.59','2022-02-10','40') ,
+('P4',	'1223',	'1.75',	'2022-02-10',	'10') ,
+('P5',	'1224',	'0.65',	'2022-02-10',	'30') ,
+('P6',	'2000' ,	'1.29',	'2022-02-12',	'25') ,
+('P7' ,	'2001'	,'2.19',	'2022-02-12'	,'20'),
+('P8',	'1223',	'1.8',	'2022-02-15',	'10') ;
+
+select * from greenspot.purchase;
+
+insert into	greenspot.sales values ('S1' ,'2022-02-02',	'198765' ),
+('S2',	'2022-02-02' , NULL ),	 
+('S3' ,	'2022-02-02' ,	'202900'),
+('S4' ,	'2022-04-02' ,	'196777'),
+('S5'	,'2022-07-02'	,'198765'),
+('S6'	,'2022-11-02'	,'277177'),
+('S7' ,	'2022-11-02' , NULL );	
+
+
+INSERT INTO greenspot.sales_details values ('S1',	'1000' ,	'5.49'	,'2'),
+('S2' ,	'2000',	'3.99'	,'2'),
+('S3',	'1100',	'1.49',	'2'),
+('S4'	,'1000',	'5.99'	,'2'),
+('S5'	,'1100'	,'1.49'	,'8'),
+('S6'	,'1000'	,'5.49',	'4'),
+('S7'	,'1223'	,'5.49'	,'4');
+
+insert into	greenspot.stock values ( '11' ,	'1000' ,	'29' ,	'2022-02-01' ),
+('12' ,	'1000' ,	'27' ,	'2022-02-02' ) ,
+('13'	,'2000'	,'3'	,'2022-02-02' ),
+('14',	'1100',	'13' ,	'2022-02-02' ),
+('15'	,'1100'	,'53'	,'2022-02-07'),
+('16' ,	'1000' ,  	'25' ,	'2022-02-02'), 
+('17' ,	'1100' ,	'45' ,	'2022-02-08' ),
+('18' ,	'1222' ,	'59' ,	'2022-02-08' ),
+('19'	,'1223',	'12'	,'2022-02-09' ),
+('20'	,'1224'	,'31'	,'2022-02-11'),
+('21'	,'1000'	,'21'	,'2022-02-11'),
+('22'	,'1100'	,'41'	,'2022-02-11'),
+('23'	,'1222'	,'47'	,'2022-02-12'),
+('24'	,'1224'	,'23'	,'2022-02-12'),
+('25'	,'2000'	,'28'	,'2022-02-14'),
+('26'	,'2001'	,'20'	,'2022-02-17') ;
+
+select *
+from greenspot .customer ;
+
+select * from greenspot.sales;
+
+select * from greenspot.stock;
+
+Total purchase cost by product item ;
+
+SELECT product.item_num , product.desc , purchase.cost*qnty AS total_cost 
+from product 
+inner join purchase 
+on product.item_num = purchase.item_numP ;
+
+Total store revenue by product item;
+
+select product.desc , item_num , sales_details. itemNumSales , sales_details.qnty*price AS total_revenue 
+from product 
+inner join sales_details 
+on product.item_num = sales_details.itemNumSales 
+group by item_num
+order by total_revenue ;
+
+total orders and payments for each customer ;
+
+select cust_name , sum(price*qnty) as Total_payment , count(sd.sales_num) AS Total_order 
+from sales_details as sd 
+join sales as s on sd.sales_num = s.sales_num
+left join customer on customer.cust_id = s.cust_id
+group by cust_name
+order by Total_payment ;
+
+
+
